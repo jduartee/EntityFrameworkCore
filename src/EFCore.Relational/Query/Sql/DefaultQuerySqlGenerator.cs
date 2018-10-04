@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -151,11 +152,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             if (SelectExpression.Tags.Count > 0)
             {
-                _relationalCommandBuilder
-                    .Append(SingleLineComment)
-                    .Append(" EFCore: (#")
-                    .Append(SelectExpression.Tags.Join(", #"))
-                    .AppendLine(")");
+                var tag = $" EFCore: (#{SelectExpression.Tags.Join(", #")})";
+
+                using (var reader = new StringReader(tag))
+                {
+                    var first = true;
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            _relationalCommandBuilder.AppendLine();
+                        }
+
+                        if (line.Length != 0)
+                        {
+                            _relationalCommandBuilder.Append(SingleLineComment).Append(line);
+                        }
+                    }
+                }
+
+                _relationalCommandBuilder.AppendLine();
             }
         }
 

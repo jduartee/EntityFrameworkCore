@@ -97,6 +97,34 @@ FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]");
         }
 
+        public override void Single_query_multiline_tag()
+        {
+            base.Single_query_multiline_tag();
+
+            AssertSql(
+                @"-- EFCore: (#Yanni
+--AND
+--Laurel)
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Single_query_multiline_tag_with_empty_lines()
+        {
+            base.Single_query_multiline_tag_with_empty_lines();
+
+            AssertSql(
+                @"-- EFCore: (#Yanni
+
+--AND
+
+--Laurel)
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
